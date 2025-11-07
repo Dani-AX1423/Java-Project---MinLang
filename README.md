@@ -1,7 +1,7 @@
 # MiniLang Project
 
 - MinLang is a mini Project Inspired by me during my Journey through learning the basics of Java Programming Language.
-- It is a user-define programming made using Java which has the general concepts and structure as normal Programming language but it ends with OOPS as its final destination. 
+- It is a user-defined programming made using Java which has the general concepts and structure as normal Programming language but it ends with OOPS as its final destination. 
 
 										========================================================
 										========================================================
@@ -33,11 +33,11 @@ MinLang:
 
 [src/] 
 - Source directory for storing java files .
-- May contain lisyt of packages containing java files for parallel/simultaneous execution of programs.
+- May contain list of packages containing java files for parallel/simultaneous execution of programs.
 
 [docs/]
 - Similar to documentation 
-- Includes context like features in this MinLang , Algorithm for complex programs ,  files tested recently , inference made from testing and debugging , future updates and patchnotes
+- Includes context like features in this MinLang , Algorithm for complex programs ,  files tested recently , inference is made from testing and debugging , future updates and patchnotes
 
 [tests/]
 - Directory storing/executing java files for testing purpose.
@@ -69,7 +69,7 @@ Basically involves 6 major steps,
 
 4. Testing and Execution of code 
 	-> Transfer or copy java files that you want to excute from src/ directory.
-	-> Compile and excute them and make inference from it. Debug if it requires
+	-> Compile and execute them and make inference from it. Debug if it requires
 
 5. Document changes/Updates in docs/
 	-> Write the inference from programs or features that will be added in the future.
