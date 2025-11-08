@@ -1,1 +1,10 @@
+print 'Hello '
+let name = "Lyra"
+print name
 print 'Hello Lyra' 
+let age = 18
+print 'Dani is '
+print age
+print 'years old'
+print 'hello',name
+print 'Dani is',age,'years old','Dani has friend whose name is',name
