@@ -1,0 +1,4 @@
+input a
+print 'value of a =',a
+let b = 'hello'
+print 'value of b = ',b
