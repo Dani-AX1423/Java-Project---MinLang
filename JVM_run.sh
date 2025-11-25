@@ -1,51 +1,60 @@
 #!/bin/bash
-# compile_and_run.sh
 
-FILENAME=$1
-BIN_DIR="$HOME/Projects/MinLang/bin/SampleClassFiles"
-
-# Ensure bin directory exists
-mkdir -p "$BIN_DIR"
-
-# Search for the source file in subfolders (excluding bin)
-SRC_FILE=$(find . -path "./bin" -prune -o -type f -name "$FILENAME" -print | head -n 1)
-
-if [[ -z "$SRC_FILE" ]]; then
-    echo "File '$FILENAME' not found in project subfolders!"
+# ------------- CHECK ARGS ----------------
+if [ $# -ne 2 ]; then
+    echo "Usage: ./JVM_run.sh <JavaFileName.java> <BinFolderName>"
     exit 1
 fi
 
-# Determine extension
-EXT="${SRC_FILE##*.}"
+JAVA_NAME="$1"
+BIN_NAME="$2"
 
-if [[ $EXT == "java" ]]; then
-    echo "Compiling $SRC_FILE ..."
-    sleep 0.100
-    javac -d "$BIN_DIR" "$SRC_FILE"
-    if [[ $? -ne 0 ]]; then
-        echo "Compilation failed!"
-        exit 1
-    fi
-    echo "Compilation Success!"
-    CLASS_NAME=$(basename "$SRC_FILE" .java)
-elif [[ $EXT == "class" ]]; then
-    CLASS_NAME=$(basename "$SRC_FILE" .class)
+# ------------- FIND THE .JAVA FILE ----------------
+JAVA_PATH=$(find . -type f -name "$JAVA_NAME" | head -n 1)
+
+if [ -z "$JAVA_PATH" ]; then
+    echo "Error: Could not find '$JAVA_NAME' anywhere in project."
+    exit 1
+fi
+
+echo "[+] Found Java file at: $JAVA_PATH"
+
+# ------------- FIND THE OUTPUT BIN FOLDER ----------------
+OUT_DIR=$(find ./bin -type d -name "$BIN_NAME" | head -n 1)
+
+if [ -z "$OUT_DIR" ]; then
+    echo "Error: Could not find bin folder named '$BIN_NAME' under ./bin"
+    exit 1
+fi
+
+echo "[+] Using output folder: $OUT_DIR"
+
+# ------------- EXTRACT CLASS NAME ----------------
+FILENAME=$(basename "$JAVA_PATH")
+CLASSNAME="${FILENAME%.*}"
+
+# ------------- COMPILE ----------------
+echo "[+] Compiling $FILENAME → $OUT_DIR"
+javac -d "$OUT_DIR" "$JAVA_PATH"
+
+if [ $? -ne 0 ]; then
+    echo "[!] Compilation failed!"
+    exit 1
+fi
+
+echo "[+] Compilation successful!"
+
+# ------------- CHECK PACKAGE ----------------
+PKG_LINE=$(grep "^package " "$JAVA_PATH" 2>/dev/null)
+
+if [ -n "$PKG_LINE" ]; then
+    PKG=$(echo "$PKG_LINE" | sed 's/package //; s/;//')
+    FQCN="$PKG.$CLASSNAME"
+    echo "[+] Detected package: $PKG"
+    echo "[+] Running class: $FQCN"
+    java -cp "$OUT_DIR" "$FQCN"
 else
-    echo "File must be .java or .class!"
-    exit 1
+    echo "[+] Running class: $CLASSNAME"
+    java -cp "$OUT_DIR" "$CLASSNAME"
 fi
 
-# Search for the .class file inside bin folder
-CLASS_FILE=$(find "$BIN_DIR" -type f -name "$CLASS_NAME.class" | head -n 1)
-
-if [[ -z "$CLASS_FILE" ]]; then
-    echo "Compiled .class file not found in $BIN_DIR!"
-    exit 1
-fi
-
-# Run the class file
-CLASS_DIR=$(dirname "$CLASS_FILE")
-cd "$CLASS_DIR" || exit
-echo "Running $CLASS_NAME ..."
-echo ""
-java "$CLASS_NAME"
