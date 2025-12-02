@@ -3,7 +3,7 @@ package org.dani.lytrix.core.frontend.ast.nodes;
 //Required : Abstract Classes,Token class, NodeVisitor interface
 import org.dani.lytrix.core.frontend.ast.baseNodes.*;
 import org.dani.lytrix.core.frontend.scanner.tokens.*;
-import org.dani.lytrix.LyTrix_R.backend.interpreter.NodeVisitor;
+import org.dani.lytrix.core.frontend.ast.visitors.NodeVisitor;
 
 
 //Node which packs all nodes together and starts the chain of node operation

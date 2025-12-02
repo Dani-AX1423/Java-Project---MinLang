@@ -2,7 +2,7 @@ package org.dani.lytrix.core.frontend.ast.nodes;
 //Required : Abstract Classes,Token class, NodeVisitor interface
 import org.dani.lytrix.core.frontend.ast.baseNodes.*;
 import org.dani.lytrix.core.frontend.scanner.tokens.*;
-import org.dani.lytrix.LyTrix_R.backend.interpreter.NodeVisitor;
+import org.dani.lytrix.core.frontend.ast.visitors.NodeVisitor;
 
 //Function declaration node to pack functions(main for now)
 public class FunctionDeclrNode extends AbstractFunctionDeclr {

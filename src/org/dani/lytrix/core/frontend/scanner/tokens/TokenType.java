@@ -14,17 +14,23 @@ LPARA,RPARA,
 LCURL,RCURL,
 SEMI_COL,
 
+//Statements
+WRITE_SC,
+
+//Other
+STRING,
+IDENT,
 //return key
 RETURN,
 
 EOM, //Special return value
 
 
-IDENT,
+
 
 
 //end of file and end of line
 EOF,
-EOL,
+//EOL,
 
 }

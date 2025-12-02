@@ -34,6 +34,10 @@ private boolean checkBackLine(String curr) {
 if(curr.equals("BackLine")) return true;
 else return false;
 }
+private boolean checkIO(String curr) {
+if(curr.equals("writeSc")) return true;
+else return false;
+}
 private boolean checkReturn(String curr) {
 if(curr.equals("return")) return true;
 else return false;
@@ -44,9 +48,9 @@ else return false;
 }
 
 //classify data types
-private TokenType classifyDType(String flag)
+private TokenType classifyDType(String type)
 {
-if(flag.equals("void")) return TokenType.VOID;
+if(type.equals("void")) return TokenType.VOID;
 else throw new RuntimeException("Error! invalid data type");
 }
 
@@ -55,9 +59,13 @@ private Token identifyString(String curr)
 {
 if(checkDType(curr)) return genToken(classifyDType(curr),curr,R,C);
 else if(checkBackLine(curr)) return genToken(TokenType.BACKLINE,curr,R,C);
+else if(checkIO(curr)) return genToken(TokenType.WRITE_SC,curr,R,C);
 else if(checkReturn(curr)) return genToken(TokenType.RETURN,curr,R,C);
 else if(checkEOM(curr)) return genToken(TokenType.EOM,curr,R,C);
-else throw new RuntimeException("Error!Invalid token");
+else {
+addToken(genToken(TokenType.IDENT,curr,R,C));
+throw new RuntimeException("Error!Invalid token" + C);
+}
 }
 
 //read one token at a time
@@ -70,11 +78,14 @@ c=peek();
 }
 if(isEOF()) return genToken(TokenType.EOF,"\\n",R,C);
 else if(isAlpha(c))
-{String curr = readString();
+{String curr = readToken();
 return identifyString(curr);}
 else if(c=='(')
 {advance();
 return genToken(TokenType.LPARA,Character.toString(c),R,C);}
+else if(isQuot(c))
+{String curr = readString();
+return genToken(TokenType.STRING,curr,R,C);}
 else if(c==')')
 {advance();
 return genToken(TokenType.RPARA,Character.toString(c),R,C);}
@@ -88,7 +99,7 @@ else if(c==';')
 {advance();
 return genToken(TokenType.SEMI_COL,Character.toString(c),R,C);}
 else 
-{throw new RuntimeException("Invalid Token");}
+{throw new RuntimeException("Invalid Token" + C);}
 }
 
 

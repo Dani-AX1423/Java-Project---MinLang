@@ -79,7 +79,7 @@ private boolean match(TokenType... types) {
 for(TokenType type : types)
 { 
 if(check(type)) 
-{advance();return true;}
+{return true;}
 }
 return false;
 }
@@ -113,9 +113,37 @@ return new FunctionDeclrNode(mType,mName,fnBlock);
 
 private FunctionBlockNode parseFunctionBody()
 {
-//no feature to write code inside function
-return new FunctionBlockNode(parseReturn());
+List<AbstractStatement> stmts = parseStatements();
+ReturnNode ret = parseReturn();
+return new FunctionBlockNode(stmts,ret);
 }
+private List<AbstractStatement> parseStatements()
+{
+List<AbstractStatement> stmts = new ArrayList<AbstractStatement>();
+while(!isAtEnd() && !check(TokenType.RETURN) && !check(TokenType.RCURL))
+{
+AbstractStatement stmt = parseStatement();
+stmts.add(stmt);
+}
+return stmts;
+}
+
+private AbstractStatement parseStatement()
+{
+if(match(TokenType.WRITE_SC)) return parseOutput();
+else throw new RuntimeException("Unexpected Statement : " + peek().getLex());
+}
+
+private OutputNode parseOutput()
+{
+expect(TokenType.WRITE_SC,"Expected writeSc");
+expect(TokenType.LPARA,"Expected '('");
+Token str = expect(TokenType.STRING,"Expected String literal");
+expect(TokenType.RPARA,"Expected ')'");
+expect(TokenType.SEMI_COL,"Statements should be terminated by semicolon");
+return new OutputNode(str);
+}
+
 
 private ReturnNode parseReturn()
 {

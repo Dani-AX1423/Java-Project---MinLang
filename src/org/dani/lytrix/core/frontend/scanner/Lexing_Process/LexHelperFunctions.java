@@ -53,6 +53,12 @@ return c;
 protected boolean isAlpha(char c) {
 return Character.isAlphabetic(c);
 }
+protected boolean isQuot(char c) {
+return c=='\"';
+}
+protected boolean isSpace(char c) {
+return Character.isWhitespace(c);
+}
 //0.0.1 - 0.0.3 versions don't require this
 protected boolean isAlnum(char c) {
 return (Character.isAlphabetic(c) || Character.isDigit(c));
@@ -64,8 +70,9 @@ return Character.isDigit(c);
 
 
 
-//Iterator function to read Token as string using loop
-protected String readString() {
+
+//Iterator function to read Token and strings using loop
+protected String readToken() {
 char c = peek();
 StringBuilder curr = new StringBuilder();
 while(!isEOF() && isAlnum(c))
@@ -74,7 +81,23 @@ curr.append(c);
 advance();
 c = peek();
 }
+
 return curr.toString();
 }
 
+protected String readString() {
+char c = peek();
+StringBuilder curr = new StringBuilder();
+if(isQuot(c))
+{advance();c=peek();}
+while(!isEOF())
+{
+if(isQuot(c))
+{advance();break;}
+curr.append(c);
+advance();
+c = peek();
+}
+return curr.toString();
+}
 }

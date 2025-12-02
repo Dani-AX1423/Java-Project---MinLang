@@ -1,6 +1,6 @@
 package org.dani.lytrix.core.frontend.ast;
 //Required : NodeVisitor interface 
-import org.dani.lytrix.LyTrix_R.backend.interpreter.NodeVisitor;
+import org.dani.lytrix.core.frontend.ast.visitors.NodeVisitor;
 
 
 //Base and Parent class of all nodes 

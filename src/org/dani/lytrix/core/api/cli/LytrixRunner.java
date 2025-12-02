@@ -36,9 +36,10 @@ ASTNode AST= pars.parse(); //AST node obtained by parsing operation
 System.out.println("Tokens:\n");
 for(Token token:tokens)
 {System.out.println(token);} //prints each token
-System.out.println("Parsed values : " + AST); //prints AST in human readable form (special helper : toString() function)
+System.out.println("Parsed values : \n" + AST); //prints AST in human readable form (special helper : toString() function)
 Interpreter i = new Interpreter(AST); //interpreter class initialization
-System.out.println("Output : " + i.interpret());//call interpret function that visits and gives output for ast
+System.out.println("Output : ");
+i.interpret();//call interpret function that visits and gives output for ast
 System.out.println(i.End());
 }
 catch(IOException e) //error message if file not found
