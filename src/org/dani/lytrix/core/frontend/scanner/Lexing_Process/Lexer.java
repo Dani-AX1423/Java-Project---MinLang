@@ -64,7 +64,7 @@ else if(checkReturn(curr)) return genToken(TokenType.RETURN,curr,R,C);
 else if(checkEOM(curr)) return genToken(TokenType.EOM,curr,R,C);
 else {
 addToken(genToken(TokenType.IDENT,curr,R,C));
-throw new RuntimeException("Error!Invalid token" + C);
+throw new RuntimeException("Error!Invalid token");
 }
 }
 
