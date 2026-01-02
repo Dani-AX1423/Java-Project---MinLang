@@ -1,4 +1,4 @@
-package org.dani.lytrix.LyTrix_R.backend.interpreter;
+package org.dani.lytrix.core.frontend.ast.visitors;
 //Required : ast child node classes
 import org.dani.lytrix.core.frontend.ast.nodes.*;
 
@@ -8,6 +8,10 @@ public interface NodeVisitor<R> {
 R visitProgram(ProgramNode node);
 R visitFunctionDeclr(FunctionDeclrNode node);
 R visitFunctionBlock(FunctionBlockNode node);
+R visitVarDeclr(VarDeclrNode node);
+R visitVarAssign(VarAssignNode node);
+R visitVarInit(VarInitNode node);
+R visitOutput(OutputNode node);
 R visitReturn(ReturnNode node);
 
 }

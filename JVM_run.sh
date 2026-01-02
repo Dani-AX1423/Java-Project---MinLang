@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # ------------- CHECK ARGS ----------------
 if [ $# -ne 2 ]; then
     echo "Usage: ./JVM_run.sh <JavaFileName.java> <BinFolderName>"

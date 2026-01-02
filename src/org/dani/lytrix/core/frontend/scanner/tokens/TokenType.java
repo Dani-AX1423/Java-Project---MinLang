@@ -17,13 +17,30 @@ SEMI_COL,
 //Statements
 WRITE_SC,
 
-//Other
+
+//Types
+INT,
+CHAR,
 STRING,
+FLOAT,
+DOUBLE,
+
+//Operators
+ASSIGN,
+
+
+//Other
+INT_LIT,
+FLOAT_LIT,
+DOUBLE_LIT,
+CHAR_LIT,
+STRING_LIT,
+
 IDENT,
 //return key
 RETURN,
 
-EOM, //Special return value
+EOM, //Special main function return value
 
 
 
