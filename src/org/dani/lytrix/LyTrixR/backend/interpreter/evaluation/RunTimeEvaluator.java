@@ -10,6 +10,9 @@ import org.dani.lytrix.core.frontend.scanner.tokens.*;
 //import javax.management.RuntimeErrorException;
 import org.dani.lytrix.core.frontend.ast.ASTNode;
 import org.dani.lytrix.core.frontend.ast.baseNodes.*;
+import org.dani.lytrix.core.frontend.ast.expr.BinaryExpression;
+import org.dani.lytrix.core.frontend.ast.expr.IdentifierExpression;
+import org.dani.lytrix.core.frontend.ast.expr.LiteralExpression;
 import org.dani.lytrix.core.frontend.ast.nodes.*;
 import org.dani.lytrix.core.frontend.ast.visitors.NodeVisitor;
 
@@ -48,52 +51,54 @@ public abstract class RunTimeEvaluator {
     }
 
     // type conversion : implicit converter function
-    protected Object convertLiteral(TokenType type, Token literal) {
-        switch (type) {
-            case INT:
-                if (literal.getType() == TokenType.INT_LIT) {
-                    return Integer.parseInt(literal.getLex());
-                } else if (literal.getType() == TokenType.FLOAT_LIT) {
-                    return Integer.parseInt(literal.getLex());
-                } else if (literal.getType() == TokenType.DOUBLE_LIT) {
-                    return Integer.parseInt(literal.getLex());
-                }
-                break;
-            case CHAR:
-                if (literal.getType() == TokenType.CHAR_LIT) {
-                    return literal.getLex().charAt(0);
-                }
-                break;
-            case STRING:
-                if (literal.getType() == TokenType.STRING_LIT) {
-                    return literal.getLex();
-                } else if (literal.getType() == TokenType.CHAR_LIT) {
-                    return literal.getLex();
-                }
-                break;
-            case FLOAT:
-                if (literal.getType() == TokenType.FLOAT_LIT) {
-                    return Float.parseFloat(literal.getLex());
-                } else if (literal.getType() == TokenType.DOUBLE_LIT) {
-                    return Float.parseFloat(literal.getLex());
-                } else if (literal.getType() == TokenType.INT_LIT) {
-                    return Float.parseFloat(literal.getLex());
-                }
-                break;
-            case DOUBLE:
-                if (literal.getType() == TokenType.FLOAT_LIT) {
-                    return Double.parseDouble(literal.getLex());
-                }
-                else if (literal.getType() == TokenType.DOUBLE_LIT) {
-                    return Double.parseDouble(literal.getLex());
-                } else if (literal.getType() == TokenType.INT_LIT) {
-                    return Double.parseDouble(literal.getLex());
-                }
-                break;
-        }
-        throw new RuntimeException("Variable Type mismatch!\nCannot assign " + literal.getLex() + " to " + type);
-
-    }
+    /*
+     * protected Object parseLiteral(TokenType type, Token literal) {
+     * switch (type) {
+     * case INT:
+     * if (literal.getType() == TokenType.INT_LIT) {
+     * return Integer.parseInt(literal.getLex());
+     * } else if (literal.getType() == TokenType.FLOAT_LIT) {
+     * return Integer.parseInt(literal.getLex());
+     * } else if (literal.getType() == TokenType.DOUBLE_LIT) {
+     * return Integer.parseInt(literal.getLex());
+     * }
+     * break;
+     * case CHAR:
+     * if (literal.getType() == TokenType.CHAR_LIT) {
+     * return literal.getLex().charAt(0);
+     * }
+     * break;
+     * case STRING:
+     * if (literal.getType() == TokenType.STRING_LIT) {
+     * return literal.getLex();
+     * } else if (literal.getType() == TokenType.CHAR_LIT) {
+     * return literal.getLex();
+     * }
+     * break;
+     * case FLOAT:
+     * if (literal.getType() == TokenType.FLOAT_LIT) {
+     * return Float.parseFloat(literal.getLex());
+     * } else if (literal.getType() == TokenType.DOUBLE_LIT) {
+     * return Float.parseFloat(literal.getLex());
+     * } else if (literal.getType() == TokenType.INT_LIT) {
+     * return Float.parseFloat(literal.getLex());
+     * }
+     * break;
+     * case DOUBLE:
+     * if (literal.getType() == TokenType.FLOAT_LIT) {
+     * return Double.parseDouble(literal.getLex());
+     * } else if (literal.getType() == TokenType.DOUBLE_LIT) {
+     * return Double.parseDouble(literal.getLex());
+     * } else if (literal.getType() == TokenType.INT_LIT) {
+     * return Double.parseDouble(literal.getLex());
+     * }
+     * break;
+     * }
+     * throw new RuntimeException("Variable Type mismatch!\nCannot assign " +
+     * literal.getLex() + " to " + type);
+     * 
+     * }
+     */
 
     // converts the string lexeme to corresponding datatype object
     protected Object StringToLiteral(Token literal) {
@@ -115,7 +120,7 @@ public abstract class RunTimeEvaluator {
 
     //
     // read specific type of data from user
-    protected Object readUserInput(Token identifier, Token type) {
+    protected Object readUserInput(Token type) {
         Scanner input = new Scanner(System.in);
         Object inputObject;
         switch (type.getType()) {
@@ -138,28 +143,180 @@ public abstract class RunTimeEvaluator {
                 throw new RuntimeException("Unsupported input type: " + type.getLex());
 
         }
-        variables.put(identifier.getLex(), inputObject);
         return inputObject;
     }
 
     // Process rhs to resolve + convert it for assignment, declaration, reassignment
     // of variables;
-    protected Object processVarRhs(TokenType lhsType, Token rhsToken) {
-        Object varValue;
+    protected Object processAtomicValue(Token token) {
+        if (token.getType() == TokenType.IDENT) {
+            if (!variables.containsKey(token.getLex()))
+                throw new RuntimeException("Variable not declared: " + token.getLex());
+            return variables.get(token.getLex());
+        }
 
-        if (rhsToken.getType() == TokenType.IDENT) {
-            String rhsVarName = rhsToken.getLex();
-            if (types.containsKey(rhsVarName))
-                varValue = variables.get(rhsToken.getLex());
-            else
-                throw new RuntimeException("Variable not found with name : " + rhsVarName);
+        if (validateLiteral(token.getType())) {
+            return StringToLiteral(token);
+        }
 
-        } else if (validateLiteral(rhsToken.getType())) {
-            varValue = convertLiteral(lhsType, rhsToken);
-        } else
-            throw new RuntimeException("Invalid Literal for variable");
+        throw new RuntimeException("Invalid atomic value");
+    }
 
-        return varValue;
+    //
+    //
+    protected TokenType atomicType(Token token) {
+        switch (token.getType()) {
+            case INT_LIT:
+                return TokenType.INT;
+            case FLOAT_LIT:
+                return TokenType.FLOAT;
+            case DOUBLE_LIT:
+                return TokenType.DOUBLE;
+            case IDENT:
+                if (!types.containsKey(token.getLex()))
+                    throw new RuntimeException("Type not found for variable: " + token.getLex());
+                return types.get(token.getLex());
+
+            default:
+                throw new RuntimeException("Invalid atomic token");
+        }
+    }
+
+    //
+    //
+    protected TokenType exprType(AbstractExpression expr) {
+
+        if (expr instanceof LiteralExpression) {
+            return atomicType(((LiteralExpression) expr).getLiteral());
+        }
+
+        if (expr instanceof IdentifierExpression) {
+            return atomicType(((IdentifierExpression) expr).getIdentifier());
+        }
+
+        if (expr instanceof BinaryExpression) {
+            BinaryExpression b = (BinaryExpression) expr;
+            TokenType left = exprType(b.getLExpr());
+            TokenType right = exprType(b.getRExpr());
+            return promote(left, right);
+        }
+
+        if (expr instanceof InputNode) {
+            return ((InputNode) expr).getArgType().getType();
+        }
+
+        throw new RuntimeException("Unknown expression type");
+    }
+
+    protected Object evalExpr(Object lVal, TokenType lType, Token op, Object rVal, TokenType rType) {
+        TokenType resultType = promote(lType, rType);
+
+        switch (resultType) {
+            case DOUBLE: {
+                double a = ((Number) lVal).doubleValue();
+                double b = ((Number) rVal).doubleValue();
+                return evalDouble(a, b, op);
+            }
+            case FLOAT: {
+                float a = ((Number) lVal).floatValue();
+                float b = ((Number) rVal).floatValue();
+                return evalFloat(a, b, op);
+            }
+            case INT: {
+                int a = ((Number) lVal).intValue();
+                int b = ((Number) rVal).intValue();
+                return evalInt(a, b, op);
+            }
+            default:
+                throw new RuntimeException("Invalid numeric type");
+        }
+    }
+
+    //
+    // ..
+    private Object evalDouble(double a, double b, Token op) {
+        switch (op.getType()) {
+            case PLUS:
+                return a + b;
+            case MINUS:
+                return a - b;
+            case STAR:
+                return a * b;
+            case SLASH:
+                return a / b;
+            case MOD:
+                return a % b;
+            default:
+                throw new RuntimeException("Invalid operator");
+        }
+    }
+
+    private Object evalFloat(float a, float b, Token op) {
+        switch (op.getType()) {
+            case PLUS:
+                return a + b;
+            case MINUS:
+                return a - b;
+            case STAR:
+                return a * b;
+            case SLASH:
+                return a / b;
+            case MOD:
+                return a % b;
+            default:
+                throw new RuntimeException("Invalid operator");
+        }
+    }
+
+    private Object evalInt(int a, int b, Token op) {
+        if (op.getType() == TokenType.SLASH && b == 0)
+            throw new RuntimeException("Division by zero");
+
+        switch (op.getType()) {
+            case PLUS:
+                return a + b;
+            case MINUS:
+                return a - b;
+            case STAR:
+                return a * b;
+            case SLASH:
+                return a / b;
+            case MOD:
+                return a % b;
+            default:
+                throw new RuntimeException("Invalid operator");
+        }
+    }
+
+    //
+
+    //
+    private TokenType promote(TokenType a, TokenType b) {
+        if (a == TokenType.DOUBLE || b == TokenType.DOUBLE)
+            return TokenType.DOUBLE;
+        if (a == TokenType.FLOAT || b == TokenType.FLOAT)
+            return TokenType.FLOAT;
+        return TokenType.INT;
+    }
+
+    //
+    protected Object promoteValue(TokenType target, Object value) {
+
+        if (!(value instanceof Number))
+            throw new RuntimeException("Cannot convert non-numeric value");
+
+        Number n = (Number) value;
+
+        switch (target) {
+            case DOUBLE:
+                return n.doubleValue();
+            case FLOAT:
+                return n.floatValue();
+            case INT:
+                return n.intValue();
+            default:
+                throw new RuntimeException("Invalid conversion");
+        }
     }
 
 }

@@ -11,23 +11,23 @@ public class VarAssignNode extends AbstractStatement
 {
     
     private Token identifier;
-    private Token literal;
+    private AbstractExpression expr;
 
-    public VarAssignNode(Token identifier, Token literal) {
+    public VarAssignNode(Token identifier, AbstractExpression expr) {
         this.identifier = identifier;
-        this.literal=literal;
+        this.expr = expr;
     }
 
     // special function for displaying in string format for human readability
     public String toString() {
-        return "VarAssign :\n" + "Name: " + identifier.getLex() + "\tValue: " + literal.getLex();
+        return "VarAssign :\n" + "Name: " + identifier.getLex() + "\tValue: " + expr.toString();
     }
 
     // Node value retriever function for return object
     public Token getIdentifier()
     {return identifier;}
-    public Token getLiteral() 
-    {return literal;}   
+    public AbstractExpression getExpr() 
+    {return expr;}   
 
 
     //bridging function - accept()

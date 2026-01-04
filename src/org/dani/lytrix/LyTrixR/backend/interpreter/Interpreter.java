@@ -10,6 +10,9 @@ import org.dani.lytrix.core.frontend.scanner.tokens.*;
 //import javax.management.RuntimeErrorException;
 import org.dani.lytrix.core.frontend.ast.ASTNode;
 import org.dani.lytrix.core.frontend.ast.baseNodes.*;
+import org.dani.lytrix.core.frontend.ast.expr.BinaryExpression;
+import org.dani.lytrix.core.frontend.ast.expr.IdentifierExpression;
+import org.dani.lytrix.core.frontend.ast.expr.LiteralExpression;
 import org.dani.lytrix.core.frontend.ast.nodes.*;
 import org.dani.lytrix.core.frontend.ast.visitors.NodeVisitor;
 import org.dani.lytrix.LyTrixR.backend.interpreter.evaluation.*;
@@ -56,6 +59,31 @@ public class Interpreter extends RunTimeEvaluator implements NodeVisitor<Object>
     }
 
     //
+    // ...
+    // ..
+    // ..
+    // Expression visitor functions
+    public Object visitLiteralExpression(LiteralExpression expr) {
+        Token literal = expr.getLiteral();
+        return processAtomicValue(literal);
+    }
+
+    public Object visitIdentifierExpression(IdentifierExpression expr) {
+        Token identifier = expr.getIdentifier();
+        return processAtomicValue(identifier);
+    }
+
+    public Object visitBinaryExpression(BinaryExpression expr) {
+        Object leftVal = expr.getLExpr().accept(this);
+        Object rightVal = expr.getRExpr().accept(this);
+
+        TokenType leftType = exprType(expr.getLExpr());
+        TokenType rightType = exprType(expr.getRExpr());
+
+        return evalExpr(leftVal, leftType, expr.getOpt(), rightVal, rightType);
+    }
+
+    //
     // 3 types of Variable statement processor functions
     // Variable declaration:
     public Object visitVarDeclr(VarDeclrNode node) {
@@ -76,16 +104,20 @@ public class Interpreter extends RunTimeEvaluator implements NodeVisitor<Object>
     public Object visitVarInit(VarInitNode node) {
 
         String varName = node.getIdentifier().getLex();
-        if (types.containsKey(varName)) {
-            throw new RuntimeException("Variable is already declared with name : " + varName);
-        }
         TokenType varType = node.getDType().getType();
-        Token curr_lit = node.getLiteral();
+        AbstractExpression expr = node.getExpr();
 
-        Object varValue = processVarRhs(varType, curr_lit);// convertLiteral(varType, curr_lit);
+        if (types.containsKey(varName))
+            throw new RuntimeException("Variable already declared: " + varName);
+
+        Object value = expr.accept(this);
+        TokenType exprType = exprType(expr);
+
+        if (varType != exprType)
+            value = promoteValue(varType, value);
 
         types.put(varName, varType);
-        variables.put(varName, varValue);
+        variables.put(varName, value);
 
         return null;
     }
@@ -94,18 +126,20 @@ public class Interpreter extends RunTimeEvaluator implements NodeVisitor<Object>
     public Object visitVarAssign(VarAssignNode node) {
 
         String varName = node.getIdentifier().getLex();
-        Token curr_lit = node.getLiteral();
+        
+        AbstractExpression expr = node.getExpr();
 
-        if (types.containsKey(varName)) {
-            TokenType varType = types.get(varName);
-            Object varValue;
-            // varValue = convertLiteral(varType, curr_lit);
-            // types.replace(varName, varType);
-            varValue = processVarRhs(varType, curr_lit);
-            variables.replace(varName, varValue);
-        } else {
-            throw new RuntimeException("Variable is not declared with the name : " + varName);
-        }
+        if(!variables.containsKey(varName))
+            throw new RuntimeException("variable not found with name : " + varName);
+
+        Object value = expr.accept(this);
+        TokenType exprType = exprType(expr);
+        TokenType varType = types.get(varName);
+        if (varType != exprType)
+            value = promoteValue(varType, value);
+
+        //types.put(varName, varType);
+        variables.put(varName, value);
 
         return null;
     }
@@ -113,73 +147,27 @@ public class Interpreter extends RunTimeEvaluator implements NodeVisitor<Object>
     //
     // Input statement node processing function
     public Object visitInput(InputNode node) {
-        Token declrType = node.getDeclrType();
-        Token identifier = node.getIdentifier();
-        Token argType = node.getArgType();
-        if (declrType == null) {
-
-            if (variables.containsKey(identifier.getLex())) {
-                TokenType reqType = types.get(identifier.getLex());
-                if (reqType == argType.getType()) {
-                    readUserInput(identifier, argType);
-                    return null;
-                } else {
-                    throw new RuntimeException("Type mismatch! cannot read object of type <" + argType.getLex()
-                            + "> and store it into Object of type <" + reqType.name() + ">");
-                }
-            } else {
-                throw new RuntimeException("Variable is not declared with the name : " + identifier.getLex());
-            }
-        } else {
-            if (variables.containsKey(identifier.getLex())) {
-                throw new RuntimeException("cannot perform redeclaration on the same variable!");
-            } else {
-                TokenType reqType = declrType.getType();
-                if (reqType == argType.getType()) {
-                    types.put(identifier.getLex(), reqType);
-                    readUserInput(identifier, argType);
-                    return null;
-                } else {
-                    throw new RuntimeException("Type mismatch! cannot read object of type <" + argType.getLex()
-                            + "> and store it into Object of type <" + declrType.getLex() + ">");
-                }
-            }
-
-        }
+        Token type = node.getArgType();
+        Object value = readUserInput(type);
+        return value;
+        
 
     }
 
     //
     // Output statement node processing function
     public Object visitOutput(OutputNode node) {
-        Token arg = node.getArg();
+        AbstractExpression expr = node.getArg();
 
-        if (arg == null) {
+        if(expr==null) {
             System.out.println();
-        } else {
-            TokenType argType = arg.getType();
-            Object argValue;
-            if (argType == TokenType.STRING_LIT || argType == TokenType.CHAR_LIT) {
-                argValue = StringToLiteral(arg);
-                System.out.println(argValue);
-            } else if (argType == TokenType.INT_LIT || argType == TokenType.FLOAT_LIT
-                    || argType == TokenType.DOUBLE_LIT) {
-                argValue = StringToLiteral(arg);
-                System.out.println(argValue);
-            }
-
-            // Variable printing or calling
-            else if (argType == TokenType.IDENT) {
-                String identifier = arg.getLex();
-                if (variables.containsKey(identifier)) {
-                    Object literal = variables.get(identifier);
-                    System.out.println(literal);
-                } else {
-                    throw new RuntimeException("Variable with name : " + identifier + " not found.");
-                }
-            }
+            return null;
         }
-        return null;
+        else {
+            Object value = expr.accept(this);
+            System.out.println(value);
+            return null;
+        }
     }
 
     // visits the terminator of functions (return validator)

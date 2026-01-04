@@ -11,17 +11,17 @@ public class VarInitNode extends AbstractStatement
 {
     private Token type;
     private Token identifier;
-    private Token literal;
+    private AbstractExpression expr;
 
-    public VarInitNode(Token type, Token identifier, Token literal) {
+    public VarInitNode(Token type, Token identifier, AbstractExpression expr) {
         this.type = type;
         this.identifier = identifier;
-        this.literal=literal;
+        this.expr=expr;
     }
 
     // special function for displaying in string format for human readability
     public String toString() {
-        return "VarInit : \nType: " + type.getLex() + "\tName: " + identifier.getLex() + "\tValue: " + literal.getLex();
+        return "VarInit : \nType: " + type.getLex() + "\tName: " + identifier.getLex() + "\tValue: " + expr.toString();
     }
 
     // Node value retriever function for return object
@@ -29,8 +29,8 @@ public class VarInitNode extends AbstractStatement
     {return type;}
     public Token getIdentifier()
     {return identifier;}
-    public Token getLiteral()
-    {return literal;}
+    public AbstractExpression getExpr()
+    {return expr;}
 
     
     //bridging function - accept()

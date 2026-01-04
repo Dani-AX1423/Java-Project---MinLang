@@ -3,6 +3,9 @@ package org.dani.lytrix.core.frontend.parser;
 import org.dani.lytrix.core.frontend.scanner.tokens.*;
 import org.dani.lytrix.core.frontend.scanner.Lexing_Process.*;
 import org.dani.lytrix.core.frontend.ast.baseNodes.*;
+import org.dani.lytrix.core.frontend.ast.expr.BinaryExpression;
+import org.dani.lytrix.core.frontend.ast.expr.IdentifierExpression;
+import org.dani.lytrix.core.frontend.ast.expr.LiteralExpression;
 import org.dani.lytrix.core.frontend.ast.nodes.*;
 
 import java.util.*;
@@ -87,6 +90,9 @@ public class Parser {
             throw new RuntimeException(errorMessage + " at Line : " + peek().getLine() + " .Position : "
                     + peek().getPos() + "\nBut Received : " + peek().getType());
     }
+    //
+
+    //
     // specific helper functions for useless things or is it?
 
     private boolean checkDType() {
@@ -102,16 +108,12 @@ public class Parser {
         return lit;
     }
 
-    private Token fetchOPArg(Token arg) {
-        if (checkLiteral() || check(TokenType.IDENT)) {
-            advance();
-            return arg;
-        } else if (check(TokenType.RPARA)) {
+    private AbstractExpression fetchOPArg() {
+        if (check(TokenType.RPARA)) {
             // advance();
             return null;
-        } else {
-            throw new RuntimeException("Invalid argument inside writeSc");
-        }
+        } 
+        return parseExpression();
     }
 
     // Main parser function that creates the AST
@@ -165,27 +167,85 @@ public class Parser {
             throw new RuntimeException("Unexpected Statement : " + peek().getLex());
     }
 
+    private AbstractExpression parseExpression() {
+        return parseTerm();
+    }
+
+    private AbstractExpression parseTerm() {
+        AbstractExpression expr = parseFactor();
+        
+        while(check(TokenType.PLUS) || check(TokenType.MINUS)) {
+            Token operator = advance();
+            AbstractExpression right = parseFactor();
+            expr = new BinaryExpression(expr, operator, right);
+        }
+        return expr;
+
+    }
+    private AbstractExpression parseFactor() {
+        AbstractExpression expr = parsePrimary();
+
+        while(check(TokenType.STAR) || check(TokenType.SLASH) || check(TokenType.MOD)) {
+            Token operator = advance();
+            AbstractExpression right = parsePrimary();
+            expr = new BinaryExpression(expr, operator, right);
+        }
+        return expr;
+    }
+    private AbstractExpression parsePrimary() {
+        
+        if(checkLiteral()) {
+            Token literal = advance();
+            return new LiteralExpression(literal);
+        }
+        if(check(TokenType.IDENT)) {
+            Token identifier = advance();
+            return new IdentifierExpression(identifier);
+        }
+        if(check(TokenType.LPARA)) {
+            advance();
+            AbstractExpression expr = parseExpression();
+            expect(TokenType.RPARA, "Missing closing parentheses ')'");
+            return expr;
+        }
+        
+        throw new RuntimeException("Invalid expression : " + peek().getLex());
+    }
+
     private AbstractStatement parseVarDeclrOrInit() {
         Token type = advance();
         Token identifier = expect(TokenType.IDENT, "Expected Identifier name.");
+        AbstractExpression expr;
         if (check(TokenType.SEMI_COL)) {
             expect(TokenType.SEMI_COL, "Statement should be terminated by semicolon");
             return new VarDeclrNode(type, identifier);
         } else if (check(TokenType.ASSIGN)) {
             advance();
-            if (checkLiteral()) {
-                Token literal = advance();
+            if(check(TokenType.READ_SC)) {
+                expr = parseInput();
+            }
+            else {
+                expr = parseExpression();
+                
+            }
+            expect(TokenType.SEMI_COL, "Statement should be terminated by semicolon");
+            return new VarInitNode(type, identifier, expr);
+            /* if (checkLiteral()) {
+                //Token literal = advance();
+                
                 expect(TokenType.SEMI_COL, "Statement should be terminated by semicolon");
                 return new VarInitNode(type, identifier, literal);
-            } else if (check(TokenType.IDENT)) {
+            }
+            else if (check(TokenType.IDENT)) {
                 Token identLiteral = advance();
                 expect(TokenType.SEMI_COL, "Statement should be terminated by semicolon");
                 return new VarInitNode(type, identifier, identLiteral);
             } else if (check(TokenType.READ_SC)) {
                 return parseInput(type, identifier);
-            } else {
+            } 
+            else {
                 throw new RuntimeException("Invalid literal object");
-            }
+            }*/
 
         } else {
             throw new RuntimeException("Invalid variable declaration");
@@ -195,8 +255,19 @@ public class Parser {
 
     private AbstractStatement parseVarAssign() {
         Token identifier = advance();
+        AbstractExpression expr;
         expect(TokenType.ASSIGN, "Expected assignment operator after identifier");
-        if (checkLiteral()) {
+        if(check(TokenType.READ_SC)) {
+                expr = parseInput();
+                
+        }
+        else {
+            expr = parseExpression();
+            
+        }
+        expect(TokenType.SEMI_COL, "Statement should be terminated by semicolon"); 
+        return new VarAssignNode(identifier, expr);
+        /* if (checkLiteral()) {
             Token literal = advance();
             expect(TokenType.SEMI_COL, "Statement should be terminated by semicolon");
             return new VarAssignNode(identifier, literal);
@@ -213,19 +284,19 @@ public class Parser {
         // implemented above :D
         else {
             throw new RuntimeException("Invalid literal object");
-        }
+        } */
 
     }
 
-    private InputNode parseInput(Token declrType, Token identifier) {
+    private InputNode parseInput() {
         // Token identifier = ident;
         expect(TokenType.READ_SC, "Expected readSc");
         expect(TokenType.LPARA, "Expected '(' ");
         if (checkDType()) {
             Token argType = advance();
             expect(TokenType.RPARA, "Expected ')' ");
-            expect(TokenType.SEMI_COL, "Statements should be terminated by semicolon");
-            return new InputNode(declrType, identifier, argType);
+            //expect(TokenType.SEMI_COL, "Statements should be terminated by semicolon");
+            return new InputNode(argType);
         } else {
             throw new RuntimeException("Invalid type argument inside readSc()");
         }
@@ -234,7 +305,7 @@ public class Parser {
     private OutputNode parseOutput() {
         expect(TokenType.WRITE_SC, "Expected writeSc");
         expect(TokenType.LPARA, "Expected '(' ");
-        Token arg = fetchOPArg(peek());// expect(TokenType.STRING_LIT, "Expected String literal");
+        AbstractExpression arg = fetchOPArg();// expect(TokenType.STRING_LIT, "Expected String literal");
         expect(TokenType.RPARA, "Expected ')' ");
         expect(TokenType.SEMI_COL, "Statements should be terminated by semicolon");
         return new OutputNode(arg);

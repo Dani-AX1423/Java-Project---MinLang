@@ -6,32 +6,19 @@ import org.dani.lytrix.core.frontend.scanner.tokens.*;
 import org.dani.lytrix.core.frontend.ast.visitors.NodeVisitor;
 
 //this class handles the print statement as node for lytrix
-public class InputNode extends AbstractStatement {
-    private Token declrType;
-    private Token identifier;
-    private Token argType;
+public class InputNode extends AbstractExpression {
+    private final Token argType;
 
-    public InputNode(Token declrType, Token identifier,Token argType) {
-        this.declrType=declrType;
-        this.identifier=identifier;
+    public InputNode(Token argType) {
         this.argType = argType;
     }
 
     // special function for displaying in string format for human readability
     public String toString() {
-        if(declrType==null)
-            return "Input :\nVarName: " + identifier.getLex() + "\tDeclrType: " + "null" + "\tArgType: " + argType.getLex();
-        return "Input :\nVarName: " + identifier.getLex() + "\tDeclrType: " + declrType.getLex() + "\tArgType: " + argType.getLex();
+        return "Input : \n" + "Type : " + argType.getLex();
     }
 
-    // Node variables retriever function for return object
-    public Token getDeclrType() {
-        return declrType;
-    }
-    
-    public Token getIdentifier() {
-        return identifier;
-    }
+    // Node variables retriever function for return object  
     public Token getArgType() {
         return argType;
     }

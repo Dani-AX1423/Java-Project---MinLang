@@ -7,5 +7,12 @@ import org.dani.lytrix.core.frontend.ast.visitors.NodeVisitor;
 //Creates the very own structure of Entire Program into AST 
 //A template for its child classes with abstract method
 public abstract class ASTNode {
-public abstract <R> R accept(NodeVisitor<R> tree);
+
+    //......
+    //
+    //Bridge function that connects AST and interpreter.
+    //(Powerful function yet looks simple lol)
+    //
+    public abstract <R> R accept(NodeVisitor<R> tree);
+
 }

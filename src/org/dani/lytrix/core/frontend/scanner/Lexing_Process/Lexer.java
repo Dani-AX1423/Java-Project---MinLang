@@ -23,9 +23,17 @@ public class Lexer extends LexHelperFunctions {
         // Token tok = genToken(type,lex,R,C);
         Tokens.add(t);
     }
+    
+
+//
+//
+    //....
 
     // Special helper functions for checking token 
     // Token Validation functions for classification
+
+    //...
+    //check if it is datatype keyword
     private boolean checkDType(String curr) {
         if ((curr.equals("void")) || (curr.equals("int")) || (curr.equals("char")) || (curr.equals("float"))
                 || (curr.equals("double")) || (curr.equals("string")))
@@ -34,6 +42,8 @@ public class Lexer extends LexHelperFunctions {
             return false;
     }
 
+    
+    //checl if it is literal or not
     private boolean checkLiteral(String curr) {
         if (curr == null)
             return false;
@@ -57,6 +67,7 @@ public class Lexer extends LexHelperFunctions {
         }
     }
 
+    //check if main function name matches the name 'BackLine'
     private boolean checkBackLine(String curr) {
         if (curr.equals("BackLine"))
             return true;
@@ -64,6 +75,7 @@ public class Lexer extends LexHelperFunctions {
             return false;
     }
 
+    //check if string matches input/output functions
     private boolean checkIO(String curr) {
         if (curr.equals("writeSc"))
             return true;
@@ -73,13 +85,14 @@ public class Lexer extends LexHelperFunctions {
             return false;
     }
 
+    //check if it is return keyword
     private boolean checkReturn(String curr) {
         if (curr.equals("return"))
             return true;
         else
             return false;
     }
-
+    //check if it is main function's return object variable;
     private boolean checkEOM(String curr) {
         if (curr.equals("EOM"))
             return true;
@@ -128,6 +141,27 @@ public class Lexer extends LexHelperFunctions {
             return TokenType.READ_SC;
         else
             throw new RuntimeException("Invalid IO function");
+    }
+
+    //
+    //Operator classifier function
+    private TokenType classifyOpt(char c) 
+    {
+        TokenType opt;
+        if(c=='+')
+            opt = TokenType.PLUS;
+        else if(c=='-')
+            opt = TokenType.MINUS;
+        else if(c=='*')
+            opt = TokenType.STAR;
+        else if(c=='/')
+            opt = TokenType.SLASH;
+        else if(c=='%')
+            opt = TokenType.MOD;
+        else 
+            opt = null;
+
+        return opt;
     }
 
     //
@@ -184,6 +218,14 @@ public class Lexer extends LexHelperFunctions {
         } else if (c == ';') {
             advance();
             return genToken(TokenType.SEMI_COL, Character.toString(c), R, C);
+        }
+
+        //check operator (+,-,*,/)
+        else if (isOpt(c)) {
+            TokenType opt = classifyOpt(c);
+            String curr = Character.toString(c);
+            advance();
+            return genToken(opt, curr, R, C);
         }
         // Literal Checker
         else if (isDigit(c)) {

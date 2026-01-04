@@ -70,6 +70,8 @@ public class LexHelperFunctions {
     }
 
     // 0.0.1 - 0.0.3 versions don't require this
+    //sorry isdigit() is actually getting used hahaha.
+
     protected boolean isAlnum(char c) {
         return (Character.isAlphabetic(c) || Character.isDigit(c));
     }
@@ -77,7 +79,34 @@ public class LexHelperFunctions {
     protected boolean isDigit(char c) {
         return Character.isDigit(c);
     }
+    //
+    //
 
+    // checks if it is a operator:
+    protected boolean isOpt(char c) {
+        if(c=='+') 
+            return true;
+        else if(c=='-')
+            return true;
+        else if(c=='*')
+            return true;
+        else if(c=='/')
+            return true;
+        else if(c=='%')
+            return true;
+        else 
+            return false;
+    }
+
+
+    
+
+
+    //...
+    //.
+    // Helper functions that read specific type of literal values
+
+    //
     // Iterator function to read Token using loop
     protected String readToken() {
         char c = peek();
@@ -91,10 +120,6 @@ public class LexHelperFunctions {
         return curr.toString();
     }
 
-
-
-
-    // Helper functions that read specific type of literal values
     protected String readChar() {
         advance();
         char c=peek();

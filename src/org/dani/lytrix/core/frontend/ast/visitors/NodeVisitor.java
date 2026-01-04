@@ -1,4 +1,5 @@
 package org.dani.lytrix.core.frontend.ast.visitors;
+import org.dani.lytrix.core.frontend.ast.expr.*;
 //Required : ast child node classes
 import org.dani.lytrix.core.frontend.ast.nodes.*;
 
@@ -15,4 +16,8 @@ R visitInput(InputNode node);
 R visitOutput(OutputNode node);
 R visitReturn(ReturnNode node);
 
+//
+R visitLiteralExpression(LiteralExpression expr);
+R visitIdentifierExpression(IdentifierExpression expr);
+R visitBinaryExpression(BinaryExpression expr);
 }

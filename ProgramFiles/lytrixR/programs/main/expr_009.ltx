@@ -1,0 +1,80 @@
+void BackLine() {
+
+    writeSc("=== LyTrix v0.0.9 Expression Test Start ===");
+    writeSc();
+
+    int a = 10;
+    int b = 5;
+    float f = 2.5;
+    double d = 3.0;
+
+    writeSc("Initial values:");
+    writeSc(a);
+    writeSc(b);
+    writeSc(f);
+    writeSc(d);
+    writeSc();
+
+    int x = a + b * 2;
+    writeSc("a + b * 2 =");
+    writeSc(x);
+    writeSc();
+
+    int y = (a + b) * 2;
+    writeSc("(a + b) * 2 =");
+    writeSc(y);
+    writeSc();
+
+    float z = a + f * b;
+    writeSc("a + f * b =");
+    writeSc(z);
+    writeSc();
+
+    double w = (a + f) * d / b;
+    writeSc("(a + f) * d / b =");
+    writeSc(w);
+    writeSc();
+
+    a = a + 1;
+    b = b * 3;
+    f = f + 1.5;
+    d = d * 2;
+
+    writeSc("After reassignment:");
+    writeSc(a);
+    writeSc(b);
+    writeSc(f);
+    writeSc(d);
+    writeSc();
+
+    writeSc("Enter an integer:");
+    int inInt = readSc(int);
+
+    writeSc("Enter a float:");
+    float inFloat = readSc(float);
+
+    writeSc("Enter a double:");
+    double inDouble = readSc(double);
+
+    writeSc();
+
+    int expr1 = inInt + 5 * 2;
+    float expr2 = inFloat + inInt * 1.5;
+    double expr3 = (inDouble + inFloat) / inInt;
+
+    writeSc("Computed expressions:");
+    writeSc(expr1);
+    writeSc(expr2);
+    writeSc(expr3);
+    writeSc();
+
+    writeSc("Inline expressions:");
+    writeSc(a + b * 2);
+    writeSc((a + b) * (f + 1));
+    writeSc((a + f + d) / 2);
+    writeSc();
+
+    writeSc("=== End of Expression Test ===");
+
+    return EOM;
+}

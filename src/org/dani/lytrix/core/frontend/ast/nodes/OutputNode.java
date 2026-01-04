@@ -7,9 +7,9 @@ import org.dani.lytrix.core.frontend.ast.visitors.NodeVisitor;
 
 //this class handles the print statement as node for lytrix
 public class OutputNode extends AbstractStatement {
-    private Token arg;
+    private AbstractExpression arg;
 
-    public OutputNode(Token arg) {
+    public OutputNode(AbstractExpression arg) {
         this.arg = arg;
     }
 
@@ -17,11 +17,11 @@ public class OutputNode extends AbstractStatement {
     public String toString() {
         if (arg == null)
             return "Output :\nwriteSc()";
-        return "Output :\nwriteSc: \nargument: " + arg.getLex();
+        return "Output :\nwriteSc: \nargument: " + arg.toString();
     }
 
     // Node value retriever function for return object
-    public Token getArg() {
+    public AbstractExpression getArg() {
         return arg;
     }
 
