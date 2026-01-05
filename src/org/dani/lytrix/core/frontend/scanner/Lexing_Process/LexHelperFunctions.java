@@ -4,6 +4,9 @@ import java.util.*;
 import java.io.*;
 import org.dani.lytrix.core.frontend.scanner.tokens.Token;
 import org.dani.lytrix.core.frontend.scanner.tokens.TokenType;
+
+//Exception classes
+import org.dani.lytrix.core.errors.exceptions.*;
 //import org.dani.lytrix.core.frontend.scanner.tokens.*;
 
 public class LexHelperFunctions {
@@ -17,6 +20,13 @@ public class LexHelperFunctions {
         this.idx = 0;
         this.R = 1;
         this.C = 1;
+    }
+
+    public final int getLine() {
+        return R;
+    }
+    public final int getPos() {
+        return C;
     }
 
     // Helper functions definitons //
@@ -125,9 +135,9 @@ public class LexHelperFunctions {
         char c=peek();
         advance();
         if(isEOF() || c=='\n')
-        {throw new RuntimeException("missing quotes for character termination");}
+        {throw new LexicalException("missing quotes for character termination", getLine());}
         if(!isSQuot(peek()))
-        {throw new RuntimeException("only one character can be allowed in character literal");}
+        {throw new LexicalException("only one character can be allowed in character literal", getLine());}
         else
         {
             advance();
@@ -144,7 +154,7 @@ public class LexHelperFunctions {
         }
         while (!isEOF()) {
             if (c == '\n') {
-                throw new RuntimeException("missing quotes for character termination");
+                throw new LexicalException("missing quotes for character termination",getLine());
             }
             if (isDQuot(c)) {
                 advance();
@@ -187,13 +197,13 @@ public class LexHelperFunctions {
                     }
                     else
                     {
-                        throw new RuntimeException("expected numeric values after decimal point");
+                        throw new LexicalException("expected numeric values after decimal point",getLine());
                     }
                     //continue;
                 }
                 else
                 {
-                    throw new RuntimeException("cannot have 2 decimal points");
+                    throw new LexicalException("cannot have 2 decimal points in numeric data type",getLine());
                 }
             }
             //pt = false;

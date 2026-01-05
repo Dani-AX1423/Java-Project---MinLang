@@ -4,6 +4,8 @@ import java.util.*;
 import java.io.*;
 //
 
+//exception class;
+import org.dani.lytrix.core.errors.exceptions.InterpreterException;
 //import org.dani.lytrix.core.frontend.parser.*;
 import org.dani.lytrix.core.frontend.scanner.tokens.*;
 
@@ -21,6 +23,7 @@ import org.dani.lytrix.core.frontend.ast.visitors.NodeVisitor;
 //
 public abstract class RunTimeEvaluator {
 
+    private static final Scanner input = new Scanner(System.in);
     // Main class attributes:
     protected Map<String, Object> variables;
     protected Map<String, TokenType> types;
@@ -114,37 +117,40 @@ public abstract class RunTimeEvaluator {
             case STRING_LIT:
                 return literal.getLex();
             default:
-                throw new RuntimeException("Invalid literal for output");
+                throw new InterpreterException("Invalid literal for output", literal.getLine());
         }
     }
 
     //
     // read specific type of data from user
     protected Object readUserInput(Token type) {
-        Scanner input = new Scanner(System.in);
         Object inputObject;
-        switch (type.getType()) {
-            case INT:
-                inputObject = Integer.parseInt(input.nextLine());
-                break;
-            case CHAR:
-                inputObject = input.nextLine().charAt(0);
-                break;
-            case STRING:
-                inputObject = input.nextLine();
-                break;
-            case FLOAT:
-                inputObject = Float.parseFloat(input.nextLine());
-                break;
-            case DOUBLE:
-                inputObject = Double.parseDouble(input.nextLine());
-                break;
-            default:
-                input.close();
-                throw new RuntimeException("Unsupported input type: " + type.getLex());
+        try {
+            switch (type.getType()) {
+                case INT:
+                    inputObject = Integer.parseInt(input.nextLine());
+                    break;
+                case CHAR:
+                    inputObject = input.nextLine().charAt(0);
+                    break;
+                case STRING:
+                    inputObject = input.nextLine();
+                    break;
+                case FLOAT:
+                    inputObject = Float.parseFloat(input.nextLine());
+                    break;
+                case DOUBLE:
+                    inputObject = Double.parseDouble(input.nextLine());
+                    break;
+                default:
+                    input.close();
+                    throw new InterpreterException("Unsupported input type: " + type.getLex(), type.getLine());
+
+            }
+        } catch (NumberFormatException e) {
+            throw new InterpreterException("Unsupported input type: " + type.getLex(), type.getLine());
 
         }
-        input.close();
         return inputObject;
     }
 
@@ -153,7 +159,7 @@ public abstract class RunTimeEvaluator {
     protected Object processAtomicValue(Token token) {
         if (token.getType() == TokenType.IDENT) {
             if (!variables.containsKey(token.getLex()))
-                throw new RuntimeException("Variable not declared: " + token.getLex());
+                throw new InterpreterException("Variable not declared: " + token.getLex(), token.getLine());
             return variables.get(token.getLex());
         }
 
@@ -161,7 +167,7 @@ public abstract class RunTimeEvaluator {
             return StringToLiteral(token);
         }
 
-        throw new RuntimeException("Invalid atomic value");
+        throw new InterpreterException("Invalid atomic value", token.getLine());
     }
 
     //
@@ -176,11 +182,11 @@ public abstract class RunTimeEvaluator {
                 return TokenType.DOUBLE;
             case IDENT:
                 if (!types.containsKey(token.getLex()))
-                    throw new RuntimeException("Type not found for variable: " + token.getLex());
+                    throw new InterpreterException("Type not found for variable: " + token.getLex(), token.getLine());
                 return types.get(token.getLex());
 
             default:
-                throw new RuntimeException("Invalid atomic token");
+                throw new InterpreterException("Invalid atomic token", token.getLine());
         }
     }
 
@@ -207,7 +213,7 @@ public abstract class RunTimeEvaluator {
             return ((InputNode) expr).getArgType().getType();
         }
 
-        throw new RuntimeException("Unknown expression type");
+        throw new InterpreterException("Unknown expression type", expr.getLine());
     }
 
     protected Object evalExpr(Object lVal, TokenType lType, Token op, Object rVal, TokenType rType) {
@@ -230,7 +236,7 @@ public abstract class RunTimeEvaluator {
                 return evalInt(a, b, op);
             }
             default:
-                throw new RuntimeException("Invalid numeric type");
+                throw new InterpreterException("Invalid numeric type", op.getLine());
         }
     }
 
@@ -249,7 +255,7 @@ public abstract class RunTimeEvaluator {
             case MOD:
                 return a % b;
             default:
-                throw new RuntimeException("Invalid operator");
+                throw new InterpreterException("Invalid operator", op.getLine());
         }
     }
 
@@ -266,7 +272,7 @@ public abstract class RunTimeEvaluator {
             case MOD:
                 return a % b;
             default:
-                throw new RuntimeException("Invalid operator");
+                throw new InterpreterException("Invalid operator", op.getLine());
         }
     }
 
@@ -286,7 +292,7 @@ public abstract class RunTimeEvaluator {
             case MOD:
                 return a % b;
             default:
-                throw new RuntimeException("Invalid operator");
+                throw new InterpreterException("Invalid operator", op.getLine());
         }
     }
 
@@ -302,7 +308,7 @@ public abstract class RunTimeEvaluator {
     }
 
     //
-    protected Object promoteValue(TokenType target, Object value) {
+    protected Object promoteValue(TokenType target, Object value, int line) {
 
         if (!(value instanceof Number))
             throw new RuntimeException("Cannot convert non-numeric value");
@@ -317,7 +323,7 @@ public abstract class RunTimeEvaluator {
             case INT:
                 return n.intValue();
             default:
-                throw new RuntimeException("Invalid conversion");
+                throw new InterpreterException("Invalid conversion", line);
         }
     }
 

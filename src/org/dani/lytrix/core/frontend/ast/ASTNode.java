@@ -8,6 +8,7 @@ import org.dani.lytrix.core.frontend.ast.visitors.NodeVisitor;
 //A template for its child classes with abstract method
 public abstract class ASTNode {
 
+    
     //......
     //
     //Bridge function that connects AST and interpreter.

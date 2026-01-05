@@ -14,6 +14,7 @@ public final class IdentifierExpression extends AbstractExpression
 
     public IdentifierExpression(Token identifier)
     {
+        super(identifier.getLine());
         this.identifier=identifier;
     }
 

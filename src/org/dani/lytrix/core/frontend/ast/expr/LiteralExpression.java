@@ -13,6 +13,7 @@ public final class LiteralExpression extends AbstractExpression {
 
     public LiteralExpression(Token literal)
     {
+        super(literal.getLine());
         this.literal=literal;
     }
 

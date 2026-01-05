@@ -4,6 +4,9 @@ import java.util.*;
 import java.io.*;
 //
 
+//exception class;
+import org.dani.lytrix.core.errors.exceptions.InterpreterException;
+
 //import org.dani.lytrix.core.frontend.parser.*;
 import org.dani.lytrix.core.frontend.scanner.tokens.*;
 
@@ -91,7 +94,7 @@ public class Interpreter extends RunTimeEvaluator implements NodeVisitor<Object>
         TokenType varType = node.getDType().getType();
         String varName = node.getIdentifier().getLex();
         if (types.containsKey(varName)) {
-            throw new RuntimeException("Variable is already declared with name : " + varName);
+            throw new InterpreterException("Variable is already declared with name : " + varName, node.getIdentifier().getLine());
         }
 
         types.put(varName, varType);
@@ -108,13 +111,13 @@ public class Interpreter extends RunTimeEvaluator implements NodeVisitor<Object>
         AbstractExpression expr = node.getExpr();
 
         if (types.containsKey(varName))
-            throw new RuntimeException("Variable already declared: " + varName);
+            throw new InterpreterException("Variable already declared: " + varName, node.getIdentifier().getLine());
 
         Object value = expr.accept(this);
         TokenType exprType = exprType(expr);
 
         if (varType != exprType)
-            value = promoteValue(varType, value);
+            value = promoteValue(varType, value, expr.getLine());
 
         types.put(varName, varType);
         variables.put(varName, value);
@@ -130,13 +133,13 @@ public class Interpreter extends RunTimeEvaluator implements NodeVisitor<Object>
         AbstractExpression expr = node.getExpr();
 
         if(!variables.containsKey(varName))
-            throw new RuntimeException("variable not found with name : " + varName);
+            throw new InterpreterException("variable not found with name : " + varName, node.getIdentifier().getLine());
 
         Object value = expr.accept(this);
         TokenType exprType = exprType(expr);
         TokenType varType = types.get(varName);
         if (varType != exprType)
-            value = promoteValue(varType, value);
+            value = promoteValue(varType, value, expr.getLine());
 
         //types.put(varName, varType);
         variables.put(varName, value);

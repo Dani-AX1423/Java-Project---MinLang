@@ -23,21 +23,19 @@ public class Token {
 
     // Helper Functions for fetching particular data
 
-    public TokenType getType() {
+    public final TokenType getType() {
         return this.type;
     }
 
-    public String getLex() {
-        if(this.lex==null)
-            return "null";
+    public final String getLex() {
         return this.lex;
     }
 
-    public int getLine() {
+    public final int getLine() {
         return this.row;
     }
 
-    public int getPos() {
+    public final int getPos() {
         return this.col;
     }
 

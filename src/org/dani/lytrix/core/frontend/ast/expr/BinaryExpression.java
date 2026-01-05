@@ -16,6 +16,7 @@ public class BinaryExpression extends AbstractExpression
 
     public BinaryExpression(AbstractExpression leftExpr, Token operator, AbstractExpression rightExpr)
     {
+        super(operator.getLine());
         this.leftExpr = leftExpr;
         this.operator = operator;
         this.rightExpr = rightExpr;

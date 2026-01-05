@@ -8,6 +8,12 @@ import org.dani.lytrix.core.frontend.ast.expr.IdentifierExpression;
 import org.dani.lytrix.core.frontend.ast.expr.LiteralExpression;
 import org.dani.lytrix.core.frontend.ast.nodes.*;
 
+
+//exception class:;
+import org.dani.lytrix.core.errors.exceptions.SyntaxException;
+
+
+//...
 import java.util.*;
 import java.io.*;
 
@@ -87,8 +93,13 @@ public class Parser {
         if (check(type))
             return advance();
         else
-            throw new RuntimeException(errorMessage + " at Line : " + peek().getLine() + " .Position : "
+        {    
+            Token errTok = peek();
+            throw new SyntaxException(errorMessage + " but received '" + errTok.getLex() + "'", errTok.getLine());
+            /*throw new RuntimeException(errorMessage + " at Line : " + peek().getLine() + " .Position : "
                     + peek().getPos() + "\nBut Received : " + peek().getType());
+            */
+        }
     }
     //
 
@@ -164,7 +175,7 @@ public class Parser {
         else if (check(TokenType.IDENT))
             return parseVarAssign();
         else
-            throw new RuntimeException("Unexpected Statement : " + peek().getLex());
+            throw new SyntaxException("Unexpected Statement - '" + peek().getLex() + "'", peek().getLine());
     }
 
     private AbstractExpression parseExpression() {
@@ -209,7 +220,7 @@ public class Parser {
             return expr;
         }
         
-        throw new RuntimeException("Invalid expression : " + peek().getLex());
+        throw new SyntaxException("Invalid expression - '" + peek().getLex() + "'", peek().getLine());
     }
 
     private AbstractStatement parseVarDeclrOrInit() {
@@ -248,7 +259,7 @@ public class Parser {
             }*/
 
         } else {
-            throw new RuntimeException("Invalid variable declaration");
+            throw new SyntaxException("Invalid variable declaration",peek().getLine());
         }
 
     }
@@ -298,7 +309,7 @@ public class Parser {
             //expect(TokenType.SEMI_COL, "Statements should be terminated by semicolon");
             return new InputNode(argType);
         } else {
-            throw new RuntimeException("Invalid type argument inside readSc()");
+            throw new SyntaxException("Invalid type argument inside readSc()", peek().getLine());
         }
     }
 

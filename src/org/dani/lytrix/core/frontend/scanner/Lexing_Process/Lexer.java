@@ -2,6 +2,8 @@ package org.dani.lytrix.core.frontend.scanner.Lexing_Process;
 
 import java.util.*;
 import java.io.*;
+
+import org.dani.lytrix.core.errors.exceptions.LexicalException;
 import org.dani.lytrix.core.frontend.scanner.tokens.Token;
 import org.dani.lytrix.core.frontend.scanner.tokens.TokenType;
 //import org.dani.lytrix.core.frontend.scanner.tokens.*;
@@ -116,7 +118,7 @@ public class Lexer extends LexHelperFunctions {
         else if (type.equals("string"))
             return TokenType.STRING;
         else
-            throw new RuntimeException("Error! invalid data type");
+            throw new LexicalException("Error! invalid data type",getLine());
     }
 
     // classify literals
@@ -140,7 +142,7 @@ public class Lexer extends LexHelperFunctions {
         else if (io.equals("readSc"))
             return TokenType.READ_SC;
         else
-            throw new RuntimeException("Invalid IO function");
+            throw new LexicalException("Invalid IO function",getLine());
     }
 
     //
@@ -241,7 +243,7 @@ public class Lexer extends LexHelperFunctions {
 
         // Invalid token
         else {
-            throw new RuntimeException("Invalid Token" + C);
+            throw new LexicalException("Invalid Token", getLine());
         }
     }
 

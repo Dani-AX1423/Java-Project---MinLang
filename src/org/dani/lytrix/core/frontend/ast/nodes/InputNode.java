@@ -10,6 +10,7 @@ public class InputNode extends AbstractExpression {
     private final Token argType;
 
     public InputNode(Token argType) {
+        super(argType.getLine());
         this.argType = argType;
     }
 
