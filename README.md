@@ -1,3 +1,10 @@
+> ⚠️ License Notice  
+> This project is source-available for viewing only.  
+> Usage, modification, or redistribution is prohibited without permission.
+
+
+
+
 # LyTrix Programming Language
 
 LyTrix is a personal, experimental programming language project designed and built from scratch.
