@@ -45,5 +45,11 @@ LyTrix does not use `main()`.
 
 ```txt
 void BackLine() {
+    <statement_1>;
+    <statement_2>;
+    .
+    .
+    .
+    <statement_n>
     return EOM;
 }
