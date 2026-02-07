@@ -31,7 +31,6 @@ LyTrix values *meaningful syntax* and *intentional design* over convenience.
 
 ## 🧠 Language Architecture
 
-LyTrix has two planned editions:
 
 ### 🔹 LyTrix-R
 - Interpreter-based
