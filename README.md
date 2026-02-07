@@ -23,7 +23,7 @@ LyTrix is built with the following principles:
 - Explicit control flow
 - Strong separation between **meta-code** and **runtime code**
 - Minimal magic, maximum understanding
-- Designed for future OS-level experimentation
+
 
 LyTrix values *meaningful syntax* and *intentional design* over convenience.
 
@@ -38,12 +38,6 @@ LyTrix has two planned editions:
 - Fast iteration and experimentation
 - Focused on learning and runtime behavior
 
-### 🔹 LyTrix-Q
-- Compiler-based (QBE backend)
-- Native machine code generation
-- Long-term OS and low-level development goals
-
----
 
 ## 🧩 Core Language Concepts (Early Versions)
 
