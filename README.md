@@ -8,7 +8,7 @@
 # LyTrix Programming Language
 
 LyTrix is a personal, experimental programming language project designed and built from scratch.
-It began as **MinLang** (an interpreter-focused learning project) and later evolved into **LyTrix**, a language with a clear identity, philosophy, and long-term goal: **system-level and OS-oriented development**.
+It began as **MinLang** (an interpreter-focused learning project) and later evolved into **LyTrix**, a language with a clear identity, philosophy and a long term development.
 
 LyTrix is not a toy language.
 It is a learning-driven, architecture-first language project focused on understanding how real languages, runtimes, and compilers work.
